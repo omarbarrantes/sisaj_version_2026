@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+	    <meta charset="UTF-8">
+	    <title>Lista de Usuarios - SISAJ</title>
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	    <link rel="stylesheet" href="css/ModoOscuro.css">
+	    <link rel="icon" href="img/logo.png" type="image/jpg">
+	    <style>
+	        body { padding-top: 70px; background-color: #f8f9fa; }
+	    </style>
+
+		<script>
+		    // EL GUARDIÁN NUCLEAR
+		    function expulsarSinPiedad() {
+		        if (!localStorage.getItem('sisaj_token')) {
+		            document.documentElement.style.display = 'none';
+		            window.location.href = "login.html";
+		        }
+		    }
+		    expulsarSinPiedad();
+		    window.addEventListener('pageshow', expulsarSinPiedad);
+		    setInterval(expulsarSinPiedad, 300);
+		</script>
+	</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-success fixed-top">
+        <div class="container-fluid d-flex align-items-center">
+            <a class="navbar-brand" href="index.html">Sistema San José</a>
+            
+            <div class="d-flex flex-column text-white me-3 ms-auto text-end">
+                <small>Hora: <span id="hora"></span></small>
+                <small><span id="fecha"></span></small>
+            </div>
+            
+            <a href="https://wa.me/51987654321?text=Hola,%20necesito%20soporte%20urgente%20con%20el%20sistema%20SISAJ." target="_blank" class="text-white fs-4 me-3" title="Soporte TI">
+                <i class="fab fa-whatsapp text-info"></i>
+            </a>
+            
+            <button onclick="cerrarSesion()" class="btn btn-outline-danger rounded-pill px-3 text-white d-none d-md-inline-block me-3" title="Cerrar sesión">
+                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </button>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar">
+        <div class="offcanvas-header border-bottom border-secondary pb-3 mb-2">
+            <div class="d-flex align-items-center">
+                <img src="img/logo.png" alt="Logo SISAJ" style="width: 45px; height: 45px; object-fit: cover;" class="me-3 bg-white rounded-circle shadow-sm p-1">
+                <div class="d-flex flex-column">
+                    <h5 class="offcanvas-title mb-0 fw-bold">SISAJ</h5>
+                    <small class="text-white-50" style="font-size: 0.75rem;">Sistema San José</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white align-self-start mt-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item"><a class="nav-link text-white" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="usuario.html">Tabla Usuarios</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="farmacia.html">Farmacia</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="medico.html">Atención Médica</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="registrarVenta.html">Pagos</a></li>
+                
+                <li class="nav-item mt-4">
+                    <button id="modoOscuroBtn" class="btn btn-outline-light rounded-pill w-100 mb-3">
+                        <i id="iconoModo" class="fas fa-moon me-2"></i> <span id="textoModo">Modo Oscuro</span>
+                    </button>
+                </li>
+                
+                <li class="nav-item mt-auto pt-3 border-top border-secondary">
+                    <a href="#" onclick="cerrarSesion()" class="text-danger text-decoration-none w-100 d-block text-center py-2">
+                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container mt-5 pt-4">
+        <h1 class="mb-4 text-center">Gestión de Usuarios</h1>
+        
+        <div class="row align-items-center mb-4">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                    <input type="text" id="buscarDni" class="form-control" placeholder="Buscar por DNI...">
+                </div>
+            </div>
+            <div class="col-md-8 text-end">
+                <a href="crearUsuario.html" class="btn btn-info text-white shadow-sm">
+                    <i class="fas fa-user-plus me-2"></i> Nuevo Usuario
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-bordered table-hover table-striped align-middle text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>CÓDIGO</th>
+                        <th>ALIAS</th>
+                        <th>DNI</th>
+                        <th>APELLIDOS Y NOMBRES</th>
+                        <th>FECHA NAC.</th>
+                        <th>SUELDO</th>
+                        <th>ROL</th>
+                        <th>ESTADO</th>
+                        <th>ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaUsuarios">
+                </tbody>
+            </table>
+        </div>
+		<div class="d-flex justify-content-between align-items-center mt-3">
+		            <div class="text-muted" id="infoPaginacion">
+		                Mostrando registros del sistema
+		            </div>
+		            <nav aria-label="Paginacion usuarios">
+		                <ul class="pagination mb-0" id="contenedorPasos">
+		                    </ul>
+		            </nav>
+		        </div>
+    </div>
+
+    <footer class="text-white text-center py-4 mt-5" style="background-color: #6f42c1;">
+        <div class="container">
+            <p class="mb-1">© 2026 Sistema San José - Todos los derechos reservados.</p>
+            <p class="mb-0">Lima, Perú</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/ModoOscuro.js"></script>
+
+    <script>
+        // Funciones de Reloj y Fecha
+        function actualizarHora() {
+            const ahora = new Date();
+            document.getElementById('hora').textContent = ahora.toLocaleTimeString();
+        }
+        setInterval(actualizarHora, 1000);
+        actualizarHora();
+
+        const fechaElemento = document.getElementById("fecha");
+        const hoy = new Date();
+        fechaElemento.textContent = hoy.toLocaleDateString('es-PE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).replace(/^./, str => str.toUpperCase());
+
+		let paginaActual = 0;
+		        const tamanoPagina = 5;
+
+				function cargarUsuarios(pagina = 0) {
+		            if (typeof pagina === 'object' || isNaN(pagina)) {
+		                pagina = 0;
+		            }
+		            
+		            paginaActual = pagina;
+				    const miRol = localStorage.getItem('sisaj_rol');
+		            
+		            // Capturamos lo que el usuario ha escrito en el cuadro de búsqueda
+		            const filtroDni = document.getElementById('buscarDni').value.trim();
+
+		            // Construimos la URL agregando el parámetro de DNI de forma dinámica
+		            let url = `http://localhost:8080/api/usuarios?page=${pagina}&size=${tamanoPagina}`;
+		            if (filtroDni !== '') {
+		                url += `&dni=${filtroDni}`;
+		            }
+
+				    fetch(url, {
+				        method: 'GET',
+				        headers: {
+				            'Content-Type': 'application/json',
+				            'Rol-Usuario': miRol
+				        }
+				    })
+				    .then(respuesta => {
+				        if (respuesta.status === 403) throw new Error("Acceso Denegado (403)");
+				        if (!respuesta.ok) throw new Error("Error en el servidor");
+				        return respuesta.json();
+				    })
+				    .then(pageData => {
+				        const cuerpoTabla = document.getElementById('cuerpoTablaUsuarios');
+				        cuerpoTabla.innerHTML = '';
+				        
+		                const listaUsuarios = pageData.content || [];
+
+				        listaUsuarios.forEach(usuario => {
+				            let nombreRol = 'Sin Rango';
+				            
+				            if (usuario.idRol === 1) {
+				                nombreRol = 'ADMIN';
+				            } else if (usuario.idRol === 2) {
+				                nombreRol = 'MEDICO';
+				            } else if (usuario.idRol === 3) {
+				                nombreRol = 'FARMACIA';
+				            } else if (usuario.idRol === 4) {
+				                nombreRol = 'REGISTRADOR_CAJA';
+				            } else if (usuario.rol?.nombreRol) {
+				                nombreRol = usuario.rol.nombreRol;
+				            }
+				            
+				            const badgeClase = usuario.estado ? 'bg-success' : 'bg-danger';
+				            const badgeTexto = usuario.estado ? 'Activo' : 'Inactivo';
+
+				            const botonEstadoClase = usuario.estado ? 'btn-danger' : 'btn-success';
+				            const botonEstadoIcono = usuario.estado ? 'fas fa-user-minus' : 'fas fa-user-check';
+				            const botonEstadoTexto = usuario.estado ? 'Desactivar' : 'Activar';
+
+				            let fila = `
+				                <tr>
+				                    <td>${usuario.codigoUsuario}</td>
+				                    <td>${usuario.alias}</td>
+				                    <td>${usuario.dni}</td>
+				                    <td>${usuario.apellidoPaterno} ${usuario.apellidoMaterno}, ${usuario.nombres}</td>
+				                    <td>${usuario.fechaNacimiento || '-'}</td>
+				                    <td>S/ ${usuario.sueldo || '0.00'}</td>
+				                    <td>${nombreRol}</td>
+				                    <td>
+				                        <span class="badge ${badgeClase}">${badgeTexto}</span>
+				                    </td>
+				                    <td>
+				                        <div class="d-flex justify-content-center gap-2">
+				                            <button class="btn btn-info text-white shadow-sm d-flex align-items-center justify-content-center" 
+				                                    style="width: 38px; height: 38px;" 
+				                                    onclick="editarUsuario(${usuario.codigoUsuario})" 
+				                                    title="Editar Usuario">
+				                                <i class="fas fa-edit fs-5"></i>
+				                            </button>
+				                            
+				                            <button class="btn ${botonEstadoClase} text-white shadow-sm d-flex align-items-center justify-content-center" 
+				                                    style="width: 38px; height: 38px;" 
+				                                    onclick="cambiarEstado(${usuario.codigoUsuario}, ${!usuario.estado})" 
+				                                    title="${botonEstadoTexto} Usuario">
+				                                <i class="${botonEstadoIcono} fs-5"></i>
+				                            </button>
+				                        </div>
+				                    </td>
+				                </tr>
+				            `;
+				            cuerpoTabla.innerHTML += fila;
+				        });
+
+		                renderizarControlesPaginacion(pageData);
+				    })
+				    .catch(error => {
+				        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
+				    });
+				}
+
+		        // REEMPLAZO DEL EVENTO KEYUP ANTERIOR
+		        // Escucha cuando escribes en el cuadro de búsqueda y recarga desde la página 0 con el filtro
+		        document.getElementById('buscarDni').addEventListener('keyup', function() {
+		            cargarUsuarios(0); 
+		        });
+		        function renderizarControlesPaginacion(pageData) {
+		            const infoPaginacion = document.getElementById('infoPaginacion');
+		            const contenedorPasos = document.getElementById('contenedorPasos');
+		            
+		            const totalPaginas = pageData.totalPages;
+		            const numeroPagina = pageData.number; // Página actual indexada en 0
+		            const totalElementos = pageData.totalElements;
+
+		            // 1. Modificar texto descriptivo inferior
+		            infoPaginacion.textContent = `Mostrando página ${numeroPagina + 1} de ${totalPaginas} (Total: ${totalElementos} usuarios)`;
+
+		            // 2. Limpiar botones anteriores
+		            contenedorPasos.innerHTML = '';
+
+		            // Botón Anterior
+		            const liAnterior = document.createElement('li');
+		            liAnterior.className = `page-item ${numeroPagina === 0 ? 'disabled' : ''}`;
+		            liAnterior.innerHTML = `<button class="page-link" onclick="cargarUsuarios(${numeroPagina - 1})">Anterior</button>`;
+		            contenedorPasos.appendChild(liAnterior);
+
+		            // Generar botones numéricos intermedios
+		            for (let i = 0; i < totalPaginas; i++) {
+		                const liPagina = document.createElement('li');
+		                liPagina.className = `page-item ${numeroPagina === i ? 'active' : ''}`;
+		                liPagina.innerHTML = `<button class="page-link" onclick="cargarUsuarios(${i})">${i + 1}</button>`;
+		                contenedorPasos.appendChild(liPagina);
+		            }
+
+		            // Botón Siguiente
+		            const liSiguiente = document.createElement('li');
+		            liSiguiente.className = `page-item ${numeroPagina === totalPaginas - 1 || totalPaginas === 0 ? 'disabled' : ''}`;
+		            liSiguiente.innerHTML = `<button class="page-link" onclick="cargarUsuarios(${numeroPagina + 1})">Siguiente</button>`;
+		            contenedorPasos.appendChild(liSiguiente);
+		        }
+
+		        // Ejecutar carga inicial llamando a la página cero por defecto
+		        document.addEventListener("DOMContentLoaded", () => cargarUsuarios(0));
+
+        // Ejecutar al cargar la página
+		document.addEventListener("DOMContentLoaded", () => {
+		    cargarUsuarios(0); // Forzamos el inicio estricto en la página cero
+		});
+
+        // Búsqueda en tiempo real por DNI
+        document.getElementById('buscarDni').addEventListener('keyup', function() {
+            const filtro = this.value.toLowerCase();
+            const filas = document.querySelectorAll('#cuerpoTablaUsuarios tr');
+            filas.forEach(fila => {
+                const dni = fila.cells[2].textContent.toLowerCase();
+                fila.style.display = dni.includes(filtro) ? '' : 'none';
+            });
+        });
+
+        function editarUsuario(id) {
+            window.location.href = `crearUsuario.html?id=${id}`;
+        }
+
+		function cambiarEstado(id, activar) {
+		    const accionTexto = activar ? "activar" : "desactivar";
+		    
+		    Swal.fire({
+		        title: `¿${accionTexto.toUpperCase()} usuario?`,
+		        text: `Vas a cambiar el estado del usuario con código ${id}`,
+		        icon: "warning",
+		        showCancelButton: true,
+		        confirmButtonColor: activar ? "#198754" : "#d33",
+		        cancelButtonColor: "#6c757d",
+		        confirmButtonText: `Sí, ${accionTexto}`
+		    }).then((result) => {
+		        if (result.isConfirmed) {
+		            fetch(`http://localhost:8080/api/usuarios/${id}/estado?activar=${activar}`, {
+		                method: 'PUT',
+		                headers: {
+		                    'Content-Type': 'application/json',
+		                    'Rol-Usuario': localStorage.getItem('sisaj_token')
+		                }
+		            })
+		            .then(response => {
+		                if (!response.ok) throw new Error("No se pudo actualizar en el servidor");
+		                return response.json();
+		            })
+		            .then(data => {
+		                Swal.fire({
+		                    icon: 'success',
+		                    title: '¡Modificado!',
+		                    text: `El usuario ha sido ${activar ? 'activado' : 'desactivado'} correctamente.`,
+		                    timer: 1500,
+		                    showConfirmButton: false
+		                });
+		                cargarUsuarios(); // Recarga la tabla de inmediato sin duplicar
+		            })
+		            .catch(error => {
+		                Swal.fire('Error', error.message, 'error');
+		            });
+		        }
+		    });
+		}
+		
+		function editarUsuario(id) {
+		            // Validamos físicamente que el ID sea un número válido antes de redirigir
+		            if (!id || isNaN(id)) {
+		                Swal.fire({
+		                    icon: 'error',
+		                    title: 'Error de Redirección',
+		                    text: 'El código de este usuario no es válido o está corrupto en la base de datos.'
+		                });
+		                return;
+		            }
+		            // Redirección segura
+		            window.location.href = `crearUsuario.html?id=${id}`;
+		        }
+
+		function cerrarSesion() {
+            Swal.fire({
+                title: "¿Cerrar Sesión?",
+                text: "Saldrás de tu cuenta actual de forma segura.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, salir"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('http://localhost:8080/api/usuarios/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(response => {
+                        localStorage.clear();
+                        window.location.replace('login.html');
+                    })
+                    .catch(error => {
+                        console.error("No se pudo notificar al servidor, forzando cierre local.");
+                        localStorage.clear();
+                        window.location.replace('login.html');
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

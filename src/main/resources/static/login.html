@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISAJ - Iniciar Sesión</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="img/logo.png" type="image/jpg">
+	<script>
+	    // 1. Si el usuario TIENE sesión, lo mandamos adentro
+	    if (localStorage.getItem('sisaj_token')) {
+	        window.location.replace("index.html");
+	    } else {
+	        // 2. TRAMPA DE HISTORIAL: Si NO tiene sesión (acaba de salir)
+	        // Sobreescribimos el historial repetidamente para anular el botón Atrás
+	        window.history.pushState(null, "", window.location.href);
+	        window.onpopstate = function() {
+	            window.history.pushState(null, "", window.location.href);
+	        };
+	    }
+	</script>
+    <style>
+        body {
+            /* Fondo corporativo coherente con los colores de SISAJ */
+            background: linear-gradient(135deg, #198754 0%, #0dcaf0 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+        }
+		.login-img {
+		    background-image: url('img/logo_nuevo.jpg.png'); /* O .jpg según corresponda */
+		    background-size: contain; /* <-- ESTA ES LA PALABRA CLAVE */
+		    background-position: center;
+		    background-repeat: no-repeat;
+		    background-color: skyblue; /* Este color rellenará los espacios vacíos */
+		    min-height: 100%;
+		}
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        .input-icon {
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container p-3">
+        <div class="login-card mx-auto row g-0">
+            
+            <div class="col-md-6 d-none d-md-block login-img">
+                </div>
+            
+            <div class="col-md-6 p-4 p-lg-5">
+                <div class="text-center mb-4">
+                    <img src="img/logo.png" alt="SISAJ Logo" style="width: 70px;" class="mb-3 rounded-circle shadow-sm">
+                    <h3 class="fw-bold text-success mb-1">Sistema San José</h3>
+                    <p class="text-muted small">Ingresa tus credenciales corporativas</p>
+                </div>
+
+                <form id="formularioLogin">
+                    <div class="mb-3">
+                        <label for="alias" class="form-label text-secondary fw-semibold">Usuario / Alias</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-user input-icon"></i></span>
+                            <input type="text" class="form-control form-control-lg bg-light" id="alias" placeholder="Ej. jperez" required autocomplete="username">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label text-secondary fw-semibold">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-lock input-icon"></i></span>
+                            <input type="password" class="form-control form-control-lg bg-light" id="password" placeholder="••••••••" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm" id="btnIngresar">
+                        Ingresar al Sistema <i class="fas fa-sign-in-alt ms-2"></i>
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4 pt-3 border-top">
+                    <small class="text-muted">¿Problemas de acceso? Contacta a <a href="https://wa.me/51987654321?text=Hola,%20tengo%20problemas%20para%20ingresar%20al%20SISAJ." class="text-success text-decoration-none fw-bold" target="_blank">Soporte TI</a></small>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+	<script>
+	        // 1. Evitar que un usuario que ya tiene sesión vuelva a ver el login
+	        if (localStorage.getItem('sisaj_token')) {
+	            window.location.replace('index.html');
+	        }
+
+	        // 2. Interceptar el formulario
+	        document.getElementById('formularioLogin').addEventListener('submit', function(e) {
+	            e.preventDefault();
+
+	            const alias = document.getElementById('alias').value.trim();
+	            const password = document.getElementById('password').value.trim();
+	            const btnIngresar = document.getElementById('btnIngresar');
+
+	            // Cambio visual para indicar que está cargando
+	            btnIngresar.disabled = true;
+	            btnIngresar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Validando...';
+
+	            // ==========================================
+	            // LÓGICA REAL: Conexión estricta con Spring Boot
+	            // ==========================================
+	            // Fíjate que enviamos "contraseña" para que coincida con el getContraseña() de tu Java
+				const credenciales = { 
+				                "alias": alias, 
+				                "contrasena": password  // Sin la ñ, como lo exige Java ahora
+				            };
+
+							fetch('http://localhost:8080/api/usuarios/login', {
+							        method: 'POST',
+							        headers: { 'Content-Type': 'application/json' },
+							        body: JSON.stringify(credenciales)
+							    })
+							    .then(respuesta => {
+							        // ========================================================
+							        // MEJORA: CAPTURA DE ERRORES DINÁMICOS DEL SERVIDOR
+							        // ========================================================
+							        if (!respuesta.ok) {
+							            // Si el servidor envía un JSON con un mensaje específico (ej. "Rol desactivado")
+							            // lo leemos y lo lanzamos como error. Si falla, cae al texto por defecto.
+							            return respuesta.json()
+							                .then(err => { 
+							                    throw new Error(err.mensaje || "Credenciales incorrectas o usuario no existe."); 
+							                })
+							                .catch(() => { 
+							                    throw new Error("Credenciales incorrectas o usuario no existe."); 
+							                });
+							        }
+							        return respuesta.json();
+							    })
+								.then(usuario => {
+								        localStorage.setItem('sisaj_token', 'true');
+								        localStorage.setItem('sisaj_nombre', usuario.alias || 'Usuario');
+
+								        // EXTRACCIÓN A PRUEBA DE ERRORES:
+								        let rolId = 0;
+								        
+								        if (usuario.rol && usuario.rol.idRol) {
+								            rolId = usuario.rol.idRol;
+								        } else if (usuario.idRol) {
+								            rolId = usuario.idRol;
+								        }
+								        
+								        console.log("DEBUG: ID de Rol guardado:", rolId);
+								        localStorage.setItem('sisaj_rol', rolId);
+								        
+								        // ==========================================================
+								        // 👇 ¡NUEVO!: INYECTAR ESTA LÍNEA PARA ALMACENAR EL ID REAL
+								        // ==========================================================
+								        localStorage.setItem('sisaj_id', usuario.codigoUsuario); 
+
+								        window.location.replace('index.html');
+								    })
+							    .catch(error => {
+							        // Rehabilita el botón si la petición falla o es rechazada
+							        btnIngresar.disabled = false;
+							        btnIngresar.innerHTML = 'Ingresar al Sistema <i class="fas fa-sign-in-alt ms-2"></i>';
+							        
+							        // Muestra el mensaje exacto que configuramos en Java
+							        Swal.fire({
+							            icon: 'error',
+							            title: 'Acceso Denegado',
+							            text: error.message,
+							            confirmButtonColor: '#d33'
+							        });
+							    });
+	        });
+	    </script>
+</body>
+</html>

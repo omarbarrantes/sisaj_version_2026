@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ticket_venta" pageWidth="226" pageHeight="637" columnWidth="186" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b5b6df40-912e-4df4-8c82-3bf9c4e098f7">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SISAJ_Local.jrdax"/>
+	<parameter name="idVenta" class="java.lang.Integer"/>
+	<parameter name="logoEmpresa" class="java.io.InputStream"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 
+    v.*, -- Trae automáticamente id_venta, fecha, hora, total, subtotal, igv, etc.
+    p.dni AS paciente_dni,
+    CONCAT(p.nombres, ' ', p.apellido_paterno) AS paciente_nombre,
+    u_med.alias AS medico_nombre,
+    u_caj.alias AS cajero_nombre
+FROM tarifario_venta v
+LEFT JOIN paciente p ON v.id_paciente = p.id_paciente
+LEFT JOIN usuario u_med ON v.id_medico = u_med.codigo_usuario
+LEFT JOIN usuario u_caj ON v.registrado_por = u_caj.codigo_usuario
+WHERE v.id_venta = $P{idVenta}]]>
+	</queryString>
+	<field name="id_venta" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_venta"/>
+		<property name="com.jaspersoft.studio.field.label" value="id_venta"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="fecha_emitida" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="fecha_emitida"/>
+		<property name="com.jaspersoft.studio.field.label" value="fecha_emitida"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="hora_emitida" class="java.sql.Time">
+		<property name="com.jaspersoft.studio.field.name" value="hora_emitida"/>
+		<property name="com.jaspersoft.studio.field.label" value="hora_emitida"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="id_medico" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_medico"/>
+		<property name="com.jaspersoft.studio.field.label" value="id_medico"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="id_paciente" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_paciente"/>
+		<property name="com.jaspersoft.studio.field.label" value="id_paciente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="subtotal" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="subtotal"/>
+		<property name="com.jaspersoft.studio.field.label" value="subtotal"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="igv" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="igv"/>
+		<property name="com.jaspersoft.studio.field.label" value="igv"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="total" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="total"/>
+		<property name="com.jaspersoft.studio.field.label" value="total"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="tipo_pago" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tipo_pago"/>
+		<property name="com.jaspersoft.studio.field.label" value="tipo_pago"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="registrado_por" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="registrado_por"/>
+		<property name="com.jaspersoft.studio.field.label" value="registrado_por"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="fecha_registro" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="fecha_registro"/>
+		<property name="com.jaspersoft.studio.field.label" value="fecha_registro"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="ultima_modificacion" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="ultima_modificacion"/>
+		<property name="com.jaspersoft.studio.field.label" value="ultima_modificacion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="alias_registrador" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="alias_registrador"/>
+		<property name="com.jaspersoft.studio.field.label" value="alias_registrador"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="medico_nombre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="medico_nombre"/>
+		<property name="com.jaspersoft.studio.field.label" value="medico_nombre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="paciente_nombre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="paciente_nombre"/>
+		<property name="com.jaspersoft.studio.field.label" value="paciente_nombre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="tarifario_venta"/>
+	</field>
+	<field name="paciente_dni" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="dni"/>
+		<property name="com.jaspersoft.studio.field.label" value="paciente_dni"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="paciente"/>
+	</field>
+	<field name="COLUMN_17" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="paciente_nombre"/>
+		<property name="com.jaspersoft.studio.field.label" value="paciente_nombre"/>
+	</field>
+	<field name="COLUMN_18" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="alias"/>
+		<property name="com.jaspersoft.studio.field.label" value="medico_nombre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="usuario"/>
+	</field>
+	<field name="cajero_nombre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="alias"/>
+		<property name="com.jaspersoft.studio.field.label" value="cajero_nombre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="usuario"/>
+	</field>
+	<title>
+		<band height="121" splitType="Stretch">
+			<image hAlign="Center" vAlign="Middle" isUsingCache="true" onErrorType="Blank">
+				<reportElement x="0" y="-10" width="186" height="50" uuid="d2b8c34f-96a5-4813-bc71-1234567890ab"/>
+				<imageExpression><![CDATA[$P{logoEmpresa}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="-10" y="80" width="110" height="15" uuid="f2d2c3b4-a5f6-7a8b-9c0d-1e2f3a4b5c6e"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha: " + $F{fecha_emitida}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="110" y="80" width="80" height="15" uuid="9215d3a1-7830-4a72-9a77-ba471b6732ea"/>
+				<textFieldExpression><![CDATA[$F{hora_emitida}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="-20" y="100" width="226" height="1" uuid="29d30086-9e44-4c63-a676-3d29674970f4"/>
+			</line>
+			<staticText>
+				<reportElement x="40" y="40" width="100" height="20" uuid="5c9aa1e0-e6b3-4baf-82e8-83b437b5e2dc"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA["SISAJ S.A.C"]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-7" y="60" width="194" height="20" uuid="dd8d7d3a-e61d-4750-a4e4-cc1c031a0878"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA["Av. Uruguay 514, Lima 15002"]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="-7" y="106" width="200" height="15" uuid="e1d2c3b4-a5f6-7a8b-9c0d-1e2f3a4b5c6d"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Ticket N°: " + $F{id_venta}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="138" splitType="Stretch">
+			<textField>
+				<reportElement x="-7" y="10" width="200" height="15" uuid="a3d2c3b4-a5f6-7a8b-9c0d-1e2f3a4b5c6f"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Paciente: " + ($F{paciente_nombre} != null ? $F{paciente_nombre} : "N/A")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-10" y="30" width="200" height="15" uuid="b4d2c3b4-a5f6-7a8b-9c0d-1e2f3a4b5c7a"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Médico: " + ($F{medico_nombre} != null ? $F{medico_nombre} : "N/A")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="83" y="50" width="110" height="15" uuid="0fde1ab5-c0ff-4132-81c9-e209279c91d4"/>
+				<textFieldExpression><![CDATA[$F{tipo_pago}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-11" y="50" width="90" height="15" uuid="2b4b297d-3093-473f-9ad9-9600a851cb66"/>
+				<text><![CDATA[tipo_pago]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="70" width="90" height="15" uuid="2757639c-acac-4565-b86e-005f3c260607"/>
+				<textFieldExpression><![CDATA[$F{subtotal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-10" y="70" width="110" height="15" uuid="796c5209-1265-4b30-bdfa-0ac189739be3"/>
+				<text><![CDATA[subtotal]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="79" y="90" width="110" height="22" uuid="9a59551b-fde3-47be-83d3-6c7898f07d65"/>
+				<textFieldExpression><![CDATA[$F{igv}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-11" y="90" width="80" height="22" uuid="b6317fba-8d9d-4b89-a5be-6cd0fde095eb"/>
+				<text><![CDATA[igv]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="-3" y="118" width="186" height="20" uuid="c5d2c3b4-a5f6-7a8b-9c0d-1e2f3a4b5c7b"/>
+				<textElement textAlignment="Right">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TOTAL: S/ " + ($F{total} != null ? String.format("%.2f", $F{total}) : "0.00")]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="50" splitType="Stretch">
+			<staticText>
+				<reportElement x="-3" y="10" width="100" height="20" uuid="4064b0fa-203c-42b2-9c4e-ccba95425fdc"/>
+				<text><![CDATA[alias_registrador]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="10" width="100" height="20" uuid="5940e8a9-9148-4b02-8cf0-335921dd4c20"/>
+				<textFieldExpression><![CDATA[$F{alias_registrador}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

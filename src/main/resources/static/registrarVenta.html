@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Venta / Pago - SISAJ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ModoOscuro.css">
+    <link rel="icon" href="img/logo.png" type="image/jpg">
+    <style>
+        body { padding-top: 70px; background-color: #f8f9fa; }
+    </style>
+
+    <script>
+        // ==========================================
+        // GUARDIÁN DE SESIÓN
+        // ==========================================
+        const token = localStorage.getItem('sisaj_token');
+        if (!token) {
+            window.location.replace('login.html');
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-success fixed-top">
+        <div class="container-fluid d-flex align-items-center">
+            <a class="navbar-brand" href="index.html">Sistema San José</a>
+            
+            <div class="d-flex flex-column text-white me-3 ms-auto text-end">
+                <small>Hora: <span id="hora"></span></small>
+                <small><span id="fecha"></span></small>
+            </div>
+            
+            <a href="https://wa.me/51987654321?text=Hola,%20necesito%20soporte%20urgente%20con%20el%20sistema%20SISAJ." target="_blank" class="text-white fs-4 me-3" title="Soporte TI">
+                <i class="fab fa-whatsapp text-info"></i>
+            </a>
+            
+            <button onclick="cerrarSesion()" class="btn btn-outline-danger rounded-pill px-3 text-white d-none d-md-inline-block me-3" title="Cerrar sesión">
+                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </button>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar">
+        <div class="offcanvas-header border-bottom border-secondary pb-3 mb-2">
+            <div class="d-flex align-items-center">
+                <img src="img/logo.png" alt="Logo SISAJ" style="width: 45px; height: 45px; object-fit: cover;" class="me-3 bg-white rounded-circle shadow-sm p-1">
+                <div class="d-flex flex-column">
+                    <h5 class="offcanvas-title mb-0 fw-bold">SISAJ</h5>
+                    <small class="text-white-50" style="font-size: 0.75rem;">Sistema San José</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white align-self-start mt-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+			<ul class="navbar-nav flex-grow-1">
+			    <li class="nav-item" id="menu-inicio"><a class="nav-link text-white" href="index.html">Inicio</a></li>
+			    <li class="nav-item" id="menu-usuarios"><a class="nav-link text-white" href="usuario.html">Tabla Usuarios</a></li>
+			    <li class="nav-item" id="menu-crear"><a class="nav-link active" href="crearUsuario.html">Crear Usuario</a></li>
+			    <li class="nav-item" id="menu-farmacia"><a class="nav-link text-white" href="farmacia.html">Farmacia</a></li>
+			    <li class="nav-item" id="menu-medico"><a class="nav-link text-white" href="medico.html">Atención Médica</a></li>
+			    <li class="nav-item" id="menu-pagos"><a class="nav-link text-white" href="registrarVenta.html">Pagos</a></li>
+			    
+			    <li class="nav-item mt-4">
+			        <button id="modoOscuroBtn" class="btn btn-outline-light rounded-pill w-100 mb-3">
+			            <i id="iconoModo" class="fas fa-moon me-2"></i> <span id="textoModo">Modo Oscuro</span>
+			        </button>
+			    </li>
+			    
+			    <li class="nav-item mt-auto pt-3 border-top border-secondary">
+			        <a href="#" onclick="cerrarSesion()" class="text-danger text-decoration-none w-100 d-block text-center py-2">
+			            <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+			        </a>
+			    </li>
+			</ul>
+        </div>
+    </div>
+
+    <div class="container mt-5 pt-4">
+        <h2 class="mb-4 text-center">Registrar Venta / Atención</h2>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <form id="formularioVenta" class="row g-3">
+                    
+                    <h5 class="border-bottom pb-2 text-info">1. Identificación del Paciente</h5>
+                    <div class="col-md-4">
+                        <label class="form-label">DNI Paciente <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" id="dniPaciente" class="form-control" maxlength="8" pattern="\d{8}" required>
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarPaciente" title="Buscar Paciente"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Nombre del Paciente</label>
+                        <input type="text" id="nombrePacienteLeido" class="form-control bg-light" placeholder="El nombre aparecerá aquí al buscar el DNI..." readonly required>
+                        <input type="hidden" id="idPaciente">
+                    </div>
+                    
+                    <div class="col-12 mt-1" id="alertaPacienteNuevo" style="display: none;">
+                         <small class="text-success"><i class="fas fa-user-plus me-1"></i> ¡DNI no registrado! Puede ingresar el nombre completo arriba para auto-registrarlo al cobrar.</small>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mt-4 text-info">2. Detalles de la Atención</h5>
+                    <div class="col-md-6">
+                        <label class="form-label">Médico Asignado <span class="text-danger">*</span></label>
+                        <select id="idMedico" class="form-select" required>
+                            <option value="">-- Seleccione un médico --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de Pago <span class="text-danger">*</span></label>
+                        <select id="tipoPago" class="form-select" required>
+                            <option value="">-- Seleccione tipo --</option>
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="TARJETA">Tarjeta</option>
+                            <option value="YAPE">Yape</option>
+                            <option value="PLIN">Plin</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="total" class="form-label">Total a Pagar (S/.) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">S/</span>
+                            <input type="number" id="total" class="form-control" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Fecha Emisión</label>
+                        <input type="text" id="fechaEmisionVisual" class="form-control text-muted bg-light" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Hora Emisión</label>
+                        <input type="text" id="horaEmisionVisual" class="form-control text-muted bg-light" readonly>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex justify-content-end border-top pt-3">
+                        <button type="submit" class="btn btn-primary shadow-sm" id="btnRegistrarVenta" disabled>Registrar Venta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-white text-center py-4 mt-5" style="background-color: #6f42c1;">
+        <div class="container">
+            <p class="mb-1">© 2026 Sistema San José - Todos los derechos reservados.</p>
+            <p class="mb-0">Lima, Perú</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/ModoOscuro.js"></script>
+	<script src="js/menuRoles.js"></script>
+    <script>
+        // ==========================================
+        // FUNCIONES BASE DE HORA Y SESIÓN
+        // ==========================================
+        function actualizarHora() {
+            const ahora = new Date();
+            document.getElementById('hora').textContent = ahora.toLocaleTimeString();
+        }
+        setInterval(actualizarHora, 1000);
+        actualizarHora();
+
+        const fechaElemento = document.getElementById("fecha");
+        const hoy = new Date();
+        fechaElemento.textContent = hoy.toLocaleDateString('es-PE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).replace(/^./, str => str.toUpperCase());
+        
+        // Inicializar Fecha y Hora ISO en campos visuales
+        document.getElementById('fechaEmisionVisual').value = hoy.toLocaleDateString('en-CA');
+        document.getElementById('horaEmisionVisual').value = hoy.toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+
+        function cerrarSesion() {
+            Swal.fire({
+                title: "¿Cerrar Sesión?",
+                text: "Saldrás de tu cuenta actual de forma segura.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, salir"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('http://localhost:8080/api/usuarios/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(response => {
+                        ejecutarLimpiezaLocal();
+                    })
+                    .catch(error => {
+                        console.error("No se pudo notificar al servidor, forzando cierre local.");
+                        ejecutarLimpiezaLocal();
+                    });
+                }
+            });
+        }
+
+        function ejecutarLimpiezaLocal() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace("./login.html");
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarMedicosCombo();
+        });
+
+        // ========================================================
+        // 1. CARGAR CATÁLOGO DE MÉDICOS (JSON Plano sin paginar)
+        // ========================================================
+        function cargarMedicosCombo() {
+            fetch('http://localhost:8080/api/usuarios?rol=2', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("No se pudo obtener la lista de médicos.");
+                return res.json();
+            })
+            .then(medicos => {
+                const selectMedico = document.getElementById('idMedico');
+                selectMedico.innerHTML = '<option value="">-- Seleccione un médico --</option>';
+                
+                medicos.forEach(m => {
+                    selectMedico.innerHTML += `<option value="${m.codigoUsuario}">Dr(a). ${m.alias || 'Asignado'}</option>`;
+                });
+            })
+            .catch(err => console.error("Error al cargar médicos:", err));
+        }
+
+        // ========================================================
+        // 2. BUSCAR PACIENTE (MANEJA AUTO-REGISTRO SI ES 404)
+        // ========================================================
+        document.getElementById('btnBuscarPaciente').addEventListener('click', function() {
+            const dni = document.getElementById('dniPaciente').value.trim();
+            const inputNombre = document.getElementById('nombrePacienteLeido');
+            const idPacienteOculto = document.getElementById('idPaciente');
+            const alertaNuevo = document.getElementById('alertaPacienteNuevo');
+            const btnRegistrar = document.getElementById('btnRegistrarVenta');
+
+            if (dni.length !== 8 || isNaN(dni)) {
+                Swal.fire('Atención', 'Ingrese un DNI válido de 8 dígitos.', 'warning');
+                return;
+            }
+
+            inputNombre.value = "Buscando...";
+            inputNombre.classList.remove('is-valid', 'is-invalid');
+
+            fetch(`http://localhost:8080/api/pacientes/dni/${dni}`, {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(res => {
+                // 👇 SI NO EXISTE: Habilitamos escritura manual e impedimos el bloqueo de caja
+                if (res.status === 404) {
+                    inputNombre.value = "";
+                    idPacienteOculto.value = "";
+                    
+                    inputNombre.removeAttribute('readonly');
+                    inputNombre.classList.remove('bg-light');
+                    inputNombre.placeholder = "¡Paciente nuevo! Digite Nombres y Apellidos aquí...";
+                    
+                    alertaNuevo.style.display = 'block'; // Muestra la alerta de confirmación
+                    btnRegistrar.disabled = false;       // DESBLOQUEAMOS el envío de caja
+                    inputNombre.focus();
+                    throw new Error("PACIENTE_NUEVO");  // Detiene el flujo fetch sin alertar error
+                }
+                if (!res.ok) throw new Error("Error interno al buscar el paciente.");
+                return res.json();
+            })
+            .then(paciente => {
+                // Si existe, bloqueamos edición y cargamos su ID primario
+                inputNombre.value = `${paciente.nombres} ${paciente.apellidoPaterno} ${paciente.apellidoMaterno || ''}`.trim();
+                idPacienteOculto.value = paciente.idPaciente;
+                
+                inputNombre.setAttribute('readonly', 'true');
+                inputNombre.classList.add('bg-light');
+                
+                alertaNuevo.style.display = 'none';
+                btnRegistrar.disabled = false;
+                inputNombre.classList.add('is-valid');
+            })
+            .catch(err => {
+                if (err.message !== "PACIENTE_NUEVO") {
+                    inputNombre.value = "";
+                    idPacienteOculto.value = "";
+                    alertaNuevo.style.display = 'none';
+                    btnRegistrar.disabled = true;
+                    inputNombre.classList.remove('is-valid');
+                    Swal.fire('Error', err.message, 'error');
+                }
+            });
+        });
+
+        // ========================================================
+        // 3. ENVIAR CAJA + INVOCAR VISOR DE JASPER REPORTS (6.21.5)
+        // ========================================================
+        document.getElementById('formularioVenta').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const idPaciente = document.getElementById('idPaciente').value;
+            const dniPaciente = document.getElementById('dniPaciente').value.trim();
+            const nombrePaciente = document.getElementById('nombrePacienteLeido').value.trim();
+            const idMedico = document.getElementById('idMedico').value;
+            const total = document.getElementById('total').value;
+            const tipoPago = document.getElementById('tipoPago').value;
+            const btnRegistrar = document.getElementById('btnRegistrarVenta');
+
+            if (!idPaciente && !nombrePaciente) {
+                Swal.fire('Atención', 'Debe rellenar la identificación del paciente.', 'warning');
+                return;
+            }
+
+            // Construimos la estructura exacta alineada a TarifarioVenta.java
+            const datosVenta = {
+                idPaciente: idPaciente ? parseInt(idPaciente) : null,
+                dniPaciente: dniPaciente,
+                pacienteNombre: nombrePaciente, // Envía el texto manual si es nuevo
+                idMedico: parseInt(idMedico),
+                total: parseFloat(total),
+                tipoPago: tipoPago
+            };
+
+            btnRegistrar.disabled = true;
+            btnRegistrar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando Cobro...';
+
+            fetch('http://localhost:8080/api/ventas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(datosVenta)
+            })
+            .then(res => {
+                if (res.status === 401) throw new Error("Su sesión ha caducado. Vuelva a ingresar.");
+                if (!res.ok) throw new Error("Error transaccional en la pasarela de cobros.");
+                return res.json();
+            })
+			.then(ventaData => {
+			                // 👉 1. LANZAMIENTO INMEDIATO DEL PDF (Nueva Pestaña)
+			                window.open(`http://localhost:8080/api/ventas/${ventaData.idVenta}/pdf`, '_blank');
+			                
+			                // 👉 2. RESTAURACIÓN SILENCIOSA DE LA CAJA (Fondo)
+			                document.getElementById('formularioVenta').reset();
+			                document.getElementById('nombrePacienteLeido').value = "";
+			                document.getElementById('nombrePacienteLeido').setAttribute('readonly', 'true');
+			                document.getElementById('nombrePacienteLeido').classList.add('bg-light');
+			                document.getElementById('nombrePacienteLeido').classList.remove('is-valid');
+			                document.getElementById('idPaciente').value = "";
+			                document.getElementById('alertaPacienteNuevo').style.display = 'none';
+			                
+			                // Bloqueamos el botón hasta que se busque un nuevo DNI
+			                btnRegistrar.disabled = true;
+			                btnRegistrar.innerHTML = 'Registrar Venta';
+			                
+			                // Actualizamos los relojes visuales
+			                const d = new Date();
+			                document.getElementById('fechaEmisionVisual').value = d.toLocaleDateString('en-CA');
+			                document.getElementById('horaEmisionVisual').value = d.toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+			            })
+			            .catch(error => {
+			                // El bloque de error SÍ se mantiene para avisarte si MySQL falla
+			                btnRegistrar.disabled = false;
+			                btnRegistrar.innerHTML = 'Registrar Venta';
+			                Swal.fire('Error de Caja', error.message, 'error');
+			            });
+        });
+    </script>
+</body>
+</html>

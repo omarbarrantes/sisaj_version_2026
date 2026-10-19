@@ -1,0 +1,47 @@
+@charset "UTF-8";
+/* ===== MODO OSCURO GLOBAL ===== */
+
+body.dark-mode {
+  background-color: #121212;
+  color: #f8f9fa;
+}
+
+/* Navbar */
+body.dark-mode .navbar {
+  background-color: #1f1f1f !important;
+}
+
+/* Offcanvas */
+body.dark-mode .offcanvas {
+  background-color: #1f1f1f;
+}
+
+/* Cards */
+body.dark-mode .card {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+/* Footer */
+body.dark-mode footer {
+  background-color: #1f1f1f;
+}
+
+/* Tablas */
+body.dark-mode table {
+  color: #f8f9fa;
+}
+
+/* Inputs */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border-color: #444;
+}
+
+/* Botones outline */
+body.dark-mode .btn-outline-light {
+  border-color: #f8f9fa;
+  color: #f8f9fa;
+}

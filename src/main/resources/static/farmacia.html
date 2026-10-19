@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Farmacia - SISAJ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/ModoOscuro.css">
+    <link rel="icon" href="img/logo.png" type="image/jpg">
+    <style>
+        body { padding-top: 70px; background-color: #f8f9fa; }
+    </style>
+
+    <script>
+        // ==========================================
+        // GUARDIÁN DE SESIÓN 
+        // ==========================================
+        const token = localStorage.getItem('sisaj_token');
+        if (!token) {
+            window.location.replace('login.html');
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-success fixed-top">
+        <div class="container-fluid d-flex align-items-center">
+            <a class="navbar-brand" href="index.html">Sistema San José</a>
+            
+            <div class="d-flex flex-column text-white me-3 ms-auto text-end">
+                <small>Hora: <span id="hora"></span></small>
+                <small><span id="fecha"></span></small>
+            </div>
+            
+            <a href="https://wa.me/51987654321?text=Hola,%20necesito%20soporte%20urgente%20con%20el%20sistema%20SISAJ." target="_blank" class="text-white fs-4 me-3" title="Soporte TI">
+                <i class="fab fa-whatsapp text-info"></i>
+            </a>
+            
+            <button onclick="cerrarSesion()" class="btn btn-outline-danger rounded-pill px-3 text-white d-none d-md-inline-block me-3" title="Cerrar sesión">
+                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </button>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar">
+        <div class="offcanvas-header border-bottom border-secondary pb-3 mb-2">
+            <div class="d-flex align-items-center">
+                <img src="img/logo.png" alt="Logo SISAJ" style="width: 45px; height: 45px; object-fit: cover;" class="me-3 bg-white rounded-circle shadow-sm p-1">
+                <div class="d-flex flex-column">
+                    <h5 class="offcanvas-title mb-0 fw-bold">SISAJ</h5>
+                    <small class="text-white-50" style="font-size: 0.75rem;">Sistema San José</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white align-self-start mt-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+			<ul class="navbar-nav flex-grow-1">
+			    <li class="nav-item" id="menu-inicio"><a class="nav-link text-white" href="index.html">Inicio</a></li>
+			    <li class="nav-item" id="menu-usuarios"><a class="nav-link text-white" href="usuario.html">Tabla Usuarios</a></li>
+			    <li class="nav-item" id="menu-crear"><a class="nav-link active" href="crearUsuario.html">Crear Usuario</a></li>
+			    <li class="nav-item" id="menu-farmacia"><a class="nav-link text-white" href="farmacia.html">Farmacia</a></li>
+			    <li class="nav-item" id="menu-medico"><a class="nav-link text-white" href="medico.html">Atención Médica</a></li>
+			    <li class="nav-item" id="menu-pagos"><a class="nav-link text-white" href="registrarVenta.html">Pagos</a></li>
+			    
+			    <li class="nav-item mt-4">
+			        <button id="modoOscuroBtn" class="btn btn-outline-light rounded-pill w-100 mb-3">
+			            <i id="iconoModo" class="fas fa-moon me-2"></i> <span id="textoModo">Modo Oscuro</span>
+			        </button>
+			    </li>
+			    
+			    <li class="nav-item mt-auto pt-3 border-top border-secondary">
+			        <a href="#" onclick="cerrarSesion()" class="text-danger text-decoration-none w-100 d-block text-center py-2">
+			            <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+			        </a>
+			    </li>
+			</ul>
+        </div>
+    </div>
+    <div class="container mt-5 pt-4">
+        <h1 class="mb-4 text-center">Farmacia</h1>
+
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0">Registrar Nuevo Medicamento</h5>
+            </div>
+            <div class="card-body">
+                <form id="formularioFarmacia" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nombre" class="form-label">Medicamento <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="presentacion" class="form-label">Presentación</label>
+                        <input type="text" class="form-control" id="presentacion">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="cantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="cantidad" required min="1">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="precio" class="form-label">Precio Unitario <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" id="precio" required min="0.1">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="fechaIngreso" class="form-label">Fecha Ingreso</label>
+                        <input type="date" class="form-control" id="fechaIngreso">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="fechaVencimiento" class="form-label">Fecha Vencimiento <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="fechaVencimiento" required>
+                    </div>
+
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-info text-white">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4 bg-primary border-0 text-white">
+            <div class="card-body">
+                <h5 class="card-title mb-0 text-center">
+                    Borrar el lote actual una vez agotado y registrar el siguiente para evitar conflictos.
+                </h5>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="buscarMedicamento" class="form-label">Buscar Medicamento</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="buscarMedicamento" placeholder="Escribe el nombre del medicamento...">
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-striped table-hover align-middle mb-0 text-center" id="tablaFarmacia">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Presentación</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>IGV</th>
+                        <th>Ingreso</th>
+                        <th>Vencimiento</th>
+                        <th>Vender</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaFarmacia">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="text-white text-center py-4 mt-5" style="background-color: #6f42c1;">
+        <div class="container">
+            <p class="mb-1">© 2026 Sistema San José - Todos los derechos reservados.</p>
+            <p class="mb-0">Lima, Perú</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/ModoOscuro.js"></script>
+	<script src="js/menuRoles.js"></script>
+    <script>
+        // 1. RELOJ Y FECHA
+        function actualizarHora() {
+            const ahora = new Date();
+            document.getElementById('hora').textContent = ahora.toLocaleTimeString();
+        }
+        setInterval(actualizarHora, 1000);
+        actualizarHora();
+
+        const fechaElemento = document.getElementById("fecha");
+        const hoy = new Date();
+        fechaElemento.textContent = hoy.toLocaleDateString('es-PE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).replace(/^./, str => str.toUpperCase());
+
+		function cerrarSesion() {
+		            Swal.fire({
+		                title: "¿Cerrar Sesión?",
+		                text: "Saldrás de tu cuenta actual de forma segura.",
+		                icon: "warning",
+		                showCancelButton: true,
+		                confirmButtonColor: "#d33",
+		                cancelButtonColor: "#6c757d",
+		                confirmButtonText: "Sí, salir"
+		            }).then((result) => {
+		                if (result.isConfirmed) {
+		                    
+		                    // 1. Notificamos al servidor backend antes de irnos
+		                    fetch('http://localhost:8080/api/usuarios/logout', {
+		                        method: 'POST',
+		                        headers: { 'Content-Type': 'application/json' }
+		                    })
+		                    .then(response => {
+		                        // 2. Sin importar lo que diga el servidor, ejecutamos la limpieza local
+		                        ejecutarLimpiezaLocal();
+		                    })
+		                    .catch(error => {
+		                        // 3. Si el servidor está caído y da error, nos aseguramos de no quedarnos atrapados
+		                        console.error("No se pudo notificar al servidor, forzando cierre local.");
+		                        ejecutarLimpiezaLocal();
+		                    });
+		                }
+		            });
+		        }
+				
+				function ejecutarLimpiezaLocal() {
+				    localStorage.clear();
+				    sessionStorage.clear();
+				    // Como están en la misma carpeta, "./login.html" es la ruta exacta
+				    window.location.replace("./login.html"); 
+				}
+
+        // 2. BUSCADOR EN TIEMPO REAL
+        document.getElementById('buscarMedicamento').addEventListener('keyup', function() {
+            const filtro = this.value.toLowerCase();
+            const filas = document.querySelectorAll('#cuerpoTablaFarmacia tr');
+
+            filas.forEach(fila => {
+                const nombre = fila.cells[1].textContent.toLowerCase(); 
+                fila.style.display = nombre.includes(filtro) ? '' : 'none';
+            });
+        });
+
+		function cargarInventario() {
+				            fetch('http://localhost:8080/api/farmacia', {
+				                method: 'GET',
+				                headers: {
+				                    'Content-Type': 'application/json',
+				                    'Authorization': 'Bearer ' + localStorage.getItem('sisaj_token'),
+				                    'Rol-Usuario': localStorage.getItem('sisaj_rol')
+				                }
+				            })
+				            .then(res => {
+				                if (!res.ok) throw new Error("No se pudo conectar con el inventario de la farmacia.");
+				                return res.text(); // 👈 CAMBIO 1: Leemos como texto primero
+				            })
+				            .then(text => {
+				                // 👈 CAMBIO 2: Validamos si hay texto antes de convertirlo a JSON
+				                const datos = text ? JSON.parse(text) : []; 
+				                renderTable(datos);
+				            })
+		            .catch(err => {
+		                console.error("Error al cargar inventario:", err);
+		                // Si el backend aún no está encendido, dejamos una fila informativa limpia
+		                document.getElementById('cuerpoTablaFarmacia').innerHTML = 
+		                    `<tr><td colspan="10" class="text-muted">Error al conectar con el servidor MySQL.</td></tr>`;
+		            });
+		        }
+
+		        function renderTable(datos) {
+		            const tbody = document.getElementById('cuerpoTablaFarmacia');
+		            tbody.innerHTML = '';
+
+		            if (datos.length === 0) {
+		                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">No hay medicamentos registrados en este lote.</td></tr>`;
+		                return;
+		            }
+
+		            datos.forEach(f => {
+		                const tr = document.createElement('tr');
+		                tr.innerHTML = `
+		                    <td>${f.idFarmacia}</td>
+		                    <td class="fw-bold">${f.nombreMedicamento}</td>
+		                    <td>${f.presentacion || 'N/A'}</td>
+		                    <td class="${f.cantidadDisponible <= 5 ? 'text-danger fw-bold bg-danger-subtle' : ''}">${f.cantidadDisponible}</td>
+		                    <td>
+		                        <div class="d-flex align-items-center justify-content-center">
+		                            <span class="me-1">S/</span>
+		                            <input type="number" class="form-control form-control-sm me-1" value="${f.precioUnitario.toFixed(2)}" id="precio_${f.idFarmacia}" step="0.01" style="width: 75px;">
+		                            <button class="btn btn-sm btn-outline-warning" onclick="editarPrecio(${f.idFarmacia})"><i class="fas fa-check"></i></button>
+		                        </div>
+		                    </td>
+		                    <td>S/ ${f.igv ? f.igv.toFixed(2) : '0.00'}</td>
+		                    <td>${f.fechaIngreso || 'N/A'}</td>
+		                    <td class="text-secondary fw-semibold">${f.fechaVencimiento}</td>
+		                    <td>
+		                        <div class="d-flex align-items-center justify-content-center">
+		                            <input type="number" class="form-control form-control-sm me-1" id="vender_${f.idFarmacia}" placeholder="Cant." min="1" max="${f.cantidadDisponible}" style="width: 65px;">
+		                            <button class="btn btn-sm btn-success text-white" onclick="venderMedicamento(${f.idFarmacia}, ${f.cantidadDisponible})">Vender</button>
+		                        </div>
+		                    </td>
+		                    <td>
+		                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarMedicamento(${f.idFarmacia})"><i class="fas fa-trash-alt"></i></button>
+		                    </td>
+		                `;
+		                tbody.appendChild(tr);
+		            });
+		        }
+
+		        document.addEventListener("DOMContentLoaded", cargarInventario);
+
+		        // ========================================================
+		        // 4. FUNCIONES DE ACCIÓN CONECTADAS AL BACKEND
+		        // ========================================================
+		        
+		        // A. REGISTRAR NUEVO MEDICAMENTO (POST)
+		        document.getElementById('formularioFarmacia').addEventListener('submit', function(e) {
+		            e.preventDefault();
+
+		            const nuevoMedicamento = {
+		                nombreMedicamento: document.getElementById('nombre').value,
+		                presentacion: document.getElementById('presentacion').value,
+		                cantidadDisponible: parseInt(document.getElementById('cantidad').value),
+		                precioUnitario: parseFloat(document.getElementById('precio').value),
+		                fechaIngreso: document.getElementById('fechaIngreso').value || null,
+		                fechaVencimiento: document.getElementById('fechaVencimiento').value
+		            };
+
+		            fetch('http://localhost:8080/api/farmacia', {
+		                method: 'POST',
+		                headers: {
+		                    'Content-Type': 'application/json',
+		                    'Rol-Usuario': localStorage.getItem('sisaj_rol')
+		                },
+		                body: JSON.stringify(nuevoMedicamento)
+		            })
+		            .then(res => {
+		                if (!res.ok) throw new Error("No se pudo procesar el registro del lote.");
+		                return res.json();
+		            })
+		            .then(() => {
+		                Swal.fire({ icon: 'success', title: 'Medicamento Registrado', showConfirmButton: false, timer: 1500 });
+		                this.reset();
+		                cargarInventario(); // Recarga la tabla de inmediato
+		            })
+		            .catch(err => Swal.fire('Error', err.message, 'error'));
+		        });
+
+		        // B. ACTUALIZAR PRECIO UNITARIO (PUT)
+		        function editarPrecio(id) {
+		            const nuevoPrecio = parseFloat(document.getElementById(`precio_${id}`).value);
+		            if (isNaN(nuevoPrecio) || nuevoPrecio <= 0) {
+		                Swal.fire('Precio inválido', 'El monto debe ser mayor a cero.', 'error');
+		                return;
+		            }
+
+		            fetch(`http://localhost:8080/api/farmacia/${id}/precio?nuevoPrecio=${nuevoPrecio}`, {
+		                method: 'PUT',
+		                headers: { 'Rol-Usuario': localStorage.getItem('sisaj_rol') }
+		            })
+		            .then(res => {
+		                if (!res.ok) throw new Error("No se pudo actualizar el costo unitario.");
+		                Swal.fire({ position: 'top-end', icon: 'success', title: 'Precio actualizado', showConfirmButton: false, timer: 1300 });
+		                cargarInventario();
+		            })
+		            .catch(err => Swal.fire('Error', err.message, 'error'));
+		        }
+
+		        // C. PROCESAR VENTA DIRECTA / BAJA DE STOCK (PUT)
+		        function venderMedicamento(id, stockActual) {
+		            const cantidadVender = parseInt(document.getElementById(`vender_${id}`).value);
+		            
+		            if (isNaN(cantidadVender) || cantidadVender <= 0 || cantidadVender > stockActual) {
+		                Swal.fire('Cantidad Incorrecta', 'Verifique que la cantidad ingresada esté dentro del stock disponible.', 'warning');
+		                return;
+		            }
+
+		            fetch(`http://localhost:8080/api/farmacia/${id}/vender?cantidad=${cantidadVender}`, {
+		                method: 'PUT',
+		                headers: { 'Rol-Usuario': localStorage.getItem('sisaj_rol') }
+		            })
+		            .then(res => {
+		                if (!res.ok) throw new Error("No se pudo procesar la salida de almacén.");
+		                Swal.fire({ position: 'top-end', icon: 'success', title: 'Transacción Procesada', showConfirmButton: false, timer: 1300 });
+		                cargarInventario();
+		            })
+		            .catch(err => Swal.fire('Error', err.message, 'error'));
+		        }
+
+		        // D. ELIMINAR LOTE COMPLETADO (DELETE)
+		        function eliminarMedicamento(id) {
+		            Swal.fire({
+		                title: "¿Eliminar lote de medicamento?",
+		                text: "Esta acción removerá el registro físico de la base de datos de SISAJ.",
+		                icon: "warning",
+		                showCancelButton: true,
+		                confirmButtonColor: "#d33",
+		                cancelButtonColor: "#6c757d",
+		                confirmButtonText: "Sí, remover"
+		            }).then((result) => {
+		                if (result.isConfirmed) {
+		                    fetch(`http://localhost:8080/api/farmacia/${id}`, {
+		                        method: 'DELETE',
+		                        headers: { 'Rol-Usuario': localStorage.getItem('sisaj_rol') }
+		                    })
+		                    .then(res => {
+		                        if (!res.ok) throw new Error("El medicamento seleccionado no pudo ser eliminado.");
+		                        Swal.fire('Eliminado', 'El lote ha sido retirado de almacén.', 'success');
+		                        cargarInventario();
+		                    })
+		                    .catch(err => Swal.fire('Error', err.message, 'error'));
+		                }
+		            });
+		        }
+    </script>
+</body>
+</html>
