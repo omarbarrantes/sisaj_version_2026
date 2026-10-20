@@ -3,6 +3,8 @@ package com.sisaj.demo.model;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +16,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Entity
-@Table(name = "farmacia") // Ajusta al nombre real de tu tabla
+@Table(name = "farmacia") 
 @Data
 public class Farmacia {
 
@@ -39,21 +41,10 @@ public class Farmacia {
     private Double precioUnitario;
 
     private Double igv;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone = "America/Lima")
     @Column(name = "fecha_ingreso")
     private Date fechaIngreso;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone = "America/Lima")
     @Column(name = "fecha_vencimiento")
     private Date fechaVencimiento;
-
-    // ¡Puedes conservar tus métodos personalizados!
-    // Lombok generará los getters y setters normales por debajo, 
-    // pero respetará y no sobreescribirá estos métodos que escribas tú.
-    public String getFormattedFechaIngreso() {
-        return (fechaIngreso != null) ? new SimpleDateFormat("yyyy-MM-dd").format(fechaIngreso) : "";
-    }
-
-    public String getFormattedFechaVencimiento() {
-        return (fechaVencimiento != null) ? new SimpleDateFormat("yyyy-MM-dd").format(fechaVencimiento) : "";
-    }
 }
