@@ -28,7 +28,7 @@ public class AtencionRestController {
     @GetMapping
     public ResponseEntity<?> listarAtenciones(
             @RequestHeader(value = "Rol-Usuario", required = false) String rolRecibido,
-            @RequestHeader(value = "Usuario-Id", required = false) String idRecibido, // Cabecera para capturar el ID
+            @RequestHeader(value = "Usuario-Id", required = false) String idRecibido, 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(required = false) String buscar,

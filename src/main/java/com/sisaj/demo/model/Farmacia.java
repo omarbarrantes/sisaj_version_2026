@@ -30,12 +30,10 @@ public class Farmacia {
 
     private String presentacion;
 
-    // Reemplaza tu validación manual del setter
     @Min(value = 0, message = "La cantidad disponible no puede ser negativa.")
     @Column(name = "cantidad_disponible")
     private Integer cantidadDisponible;
 
-    // Reemplaza tu validación manual del setter
     @Positive(message = "El precio unitario debe ser mayor que cero.")
     @Column(name = "precio_unitario")
     private Double precioUnitario;
